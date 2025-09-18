@@ -1,13 +1,19 @@
+# --- Игнорировать ненужные файлы проекта ---
+ts_check_homo.ipynb
+ts_check.ipynb
+merge_and_clean_data.ipynb
+forecast_excellent.ipynb
+forecast_observation.ipynb
+
+# --- Уже существующие правила ---
 # Игнорировать конкретный файл
-data/yandmast_obr2.csv  # Правильно игнорирует конкретный большой файл
+data/yandmast_obr2.csv
 
 # Игнорировать временные файлы Jupyter
-*.ipynb_checkpoints/    # Игнорирует временные файлы автосохранения
-*.pyc                  # Игнорирует скомпилированные Python файлы
-__pycache__/           # Игнорирует директории с байт-кодом Python
+*.ipynb_checkpoints/
+*.pyc
+__pycache__/
 
 # Игнорировать файлы виртуального окружения
-venv/                  # Игнорирует директорию виртуального окружения
-.venv/                # Альтернативное расположение виртуального окружения
-catboost_info/         # Игнорирует папку с информацией о CatBoost
-.catboost_info/        # Альтернативная папка с информацией о CatBoost
+venv/
+.venv/
