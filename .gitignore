@@ -1,7 +1,7 @@
 # --- Игнорировать ненужные файлы проекта ---
-ts_check_homo.ipynb
-ts_check.ipynb
-merge_and_clean_data.ipynb
+ts_check_homo.py
+ts_check.py
+merge_and_clean_data.py
 forecast_excellent.ipynb
 forecast_observation.ipynb
 
