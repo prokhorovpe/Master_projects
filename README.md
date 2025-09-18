@@ -25,11 +25,10 @@ my_master_project/
 
 
 ## Установка и запуск
-
 1.  **Клонируйте репозиторий и создайте виртуальное окружение:**
     ```bash
-    git clone <your-repo-url>
-    cd my_master_project
+    git clone https://github.com/prokhorovpe/Master_projects.git
+    cd Master_projects  # Или cd my_master_project, если вы переименовали папку локально
     python -m venv venv
     # Активируйте окружение (для Windows):
     venv\Scripts\activate
