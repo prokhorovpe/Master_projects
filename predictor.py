@@ -69,17 +69,13 @@ def predict_with_hybrid_model(modality, future_df):
     # Создаем вектор для максимально допустимого значения для каждого дня.
     max_vals = np.where(is_forecast_weekend, max_possible_weekend, max_possible_weekday)
 
-    # Создаем "адаптивный" потолок для верхней границы интервала.
-    # width = расстояние от yhat до yhat_lower (ширина "нижней" части интервала).
-    width = forecast['yhat'].values - forecast['yhat_lower'].values
-    # Адаптивная верхняя граница: yhat + width (зеркально симметричная относительно yhat).
-    adaptive_upper = forecast['yhat'].values + width
-    # Обрезаем: не больше физического максимума.
-    forecast['yhat_upper'] = np.minimum(adaptive_upper, max_vals)
-    # Нижнюю границу обрезаем только до нуля и не выше физического максимума.
-    forecast['yhat_lower'] = np.clip(forecast['yhat_lower'], 0, max_vals)
-    # Также обрезаем yhat, если он превышает физический максимум (защита).
-    forecast['yhat'] = np.clip(forecast['yhat'], 0, max_vals)
+    # ПОЛНОСТЬЮ СИММЕТРИЧНЫЙ И НЕОГРАНИЧЕННЫЙ ИНТЕРВАЛ
+    # Рассчитываем ширину нижней части интервала
+    lower_width = forecast['yhat'].values - forecast['yhat_lower'].values
+    # Рассчитываем верхнюю границу как зеркально симметричную относительно yhat
+    forecast['yhat_upper'] = forecast['yhat'].values + lower_width
+    # Обрезаем ТОЛЬКО нижнюю границу до нуля (верхняя граница может быть любой)
+    forecast['yhat_lower'] = np.clip(forecast['yhat_lower'], 0, None)
 
     # Извлекаем точечный прогноз Prophet.
     prophet_predictions = forecast.set_index('ds')['yhat']
@@ -100,24 +96,11 @@ def predict_with_hybrid_model(modality, future_df):
     yhat_lower = forecast.set_index('ds')['yhat_lower']
     yhat_upper = forecast.set_index('ds')['yhat_upper']
 
-    # ПРОВЕРКА И КОРРЕКЦИЯ ПОРЯДКА ГРАНИЦ
-    # Иногда из-за адаптивной обрезки yhat_upper может стать меньше yhat. Это недопустимо.
-    temp_df = pd.DataFrame({
-        'y_pred': final_forecast,
-        'yhat_lower': yhat_lower.values,
-        'yhat_upper': yhat_upper.values
-    })
-    mask_wrong_order = temp_df['yhat_upper'] < temp_df['y_pred']
-    if mask_wrong_order.any():
-        print(f"⚠️ Обнаружены некорректные интервалы для {modality}. Исправляем порядок границ.")
-        # Меняем местами yhat_lower и yhat_upper.
-        temp_df.loc[mask_wrong_order, ['yhat_lower', 'yhat_upper']] = temp_df.loc[mask_wrong_order, ['yhat_upper', 'yhat_lower']].values
-
     # Формируем итоговый DataFrame.
     result_df = future_df.copy()
-    result_df['y_pred'] = temp_df['y_pred']
-    result_df['yhat_lower'] = temp_df['yhat_lower']
-    result_df['yhat_upper'] = temp_df['yhat_upper']
+    result_df['y_pred'] = final_forecast  # <-- Исправлено
+    result_df['yhat_lower'] = yhat_lower.values  # <-- Исправлено
+    result_df['yhat_upper'] = yhat_upper.values  # <-- Исправлено
 
     return result_df
 
